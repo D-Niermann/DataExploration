@@ -2,7 +2,20 @@
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
+from prettytable import PrettyTable
 
+
+
+def prettyPrint(label, arg):
+    t = PrettyTable([label])
+    t.add_row([arg])
+    print(t)
+
+
+def maximizeTPRFPR(tpr : np.array, fpr : np.array):
+	s = tpr-fpr
+	w = np.where(s==s.max())
+	return {"tpr":tpr[w], "fpr":fpr[w]}
 
 def fetchAndPrepareTitanicData():
 	data : pd.DataFrame = seaborn.load_dataset("titanic")

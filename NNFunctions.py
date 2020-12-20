@@ -35,7 +35,7 @@ def kerasModel(x_train, y_train):
 				batch_size       = 5,
 				epochs           = 10,
 				validation_split = 0.1,
-				verbose          = 1,
+				verbose          = 0,
 				shuffle          = True)
 	
 	return model
