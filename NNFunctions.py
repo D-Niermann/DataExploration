@@ -1,26 +1,27 @@
 import tensorflow as tf
+import numpy as np
 import tensorboard
 
-def kerasModel(x_train, y_train):
+def kerasModel(x_train : np.array, y_train : np.array, NNShape : list) -> tf.python.keras.engine.sequential.Sequential:
 	n_inputs = x_train.shape[1]
 	n_labels = y_train.shape[1] if len(y_train.shape)>1 else 1
 
 
-	NN_SHAPE = [n_inputs, 10, n_labels]
 	layers = []
-	for i in range(len(NN_SHAPE)-1):
+	for i in range(len(NNShape)-1):
 		if i == 0:
-			layers.append(tf.keras.layers.Dense(NN_SHAPE[i+1], input_shape = (NN_SHAPE[i],), activation="sigmoid"))
+			layers.append(tf.keras.layers.Dense(NNShape[i+1], 	input_shape = (NNShape[i],),
+																activation = "sigmoid"))
 		else:
-			layers.append(tf.keras.layers.Dense(NN_SHAPE[i+1], activation = "sigmoid"))
+			layers.append(tf.keras.layers.Dense(NNShape[i+1], activation = "sigmoid"))
 
 	n_layers = len(layers)
 	model = tf.keras.Sequential(layers, name="NNModel1")
 
 
 	## optimizer
-	sgd = tf.keras.optimizers.SGD(lr=0.005, decay=1e-6, momentum=0.9, nesterov=True)
-	ada = tf.keras.optimizers.Adagrad(learning_rate=0.01)
+	sgd = tf.keras.optimizers.SGD(lr=0.05, decay=1e-6, momentum=0.9, nesterov=True)
+	ada = tf.keras.optimizers.Adagrad(learning_rate=0.2)
 
 
 	# compile(optimizer, loss=None, metrics=None, 
@@ -33,10 +34,10 @@ def kerasModel(x_train, y_train):
 
 	fit = model.fit(x_train, y_train,
 				batch_size       = 5,
-				epochs           = 10,
+				epochs           = 50,
 				validation_split = 0.1,
 				verbose          = 0,
-				shuffle          = True)
+				shuffle          = False)
 	
 	return model
 
