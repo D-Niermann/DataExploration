@@ -17,6 +17,11 @@ lin nn model
 
 ### data
 data = F.loadPreparedData()
+### norm each feature to 1 (makes the weights comparable - not necessary with shap, but nice to have)
+data = data/data.max(axis=0)
+## append sqrt(fare) to better the distribution
+data["sqrt(fare)"] = np.sqrt(data["fare"])
+## test train split
 x_train,y_train,x_test,y_test = F.splitData(data)
 ### correlation
 corr = data.corr()["survived"]
@@ -35,20 +40,20 @@ print("-----------------------------------------")
 ## linear shap
 shap.initjs()
 explainer = shap.LinearExplainer(linModel,x_train,feature_dependence="independent")
-shap_vals = explainer.shap_values(x_test)
+shap_valsLin = explainer.shap_values(x_test)
 ## summary plot
-shap.summary_plot(shap_vals,x_test.values,x_train.columns)
+shap.summary_plot(shap_valsLin,x_test.values,x_train.columns,alpha=0.5)
 ## one sample person
 i=1
-shap.force_plot(explainer.expected_value,shap_vals[i,:],x_test.values[i,:],x_test.columns,matplotlib=True)
+shap.force_plot(explainer.expected_value,shap_valsLin[i,:],x_test.values[i,:],x_test.columns,matplotlib=True)
 
 shap.force_plot(explainer.expected_value,
-				shap_vals,
+				shap_valsLin,
 				x_test.values,
 				x_test.columns)
 
-shap.dependence_plot("fare",shap_vals,x_test.values,x_test.columns,interaction_index="isMale")
-
+shap.dependence_plot("fare",shap_valsLin,x_test.values,x_test.columns,interaction_index="isMale",alpha=0.5)
+plt.title("Linear Model")
 
 
 
@@ -66,17 +71,17 @@ NNPred : np.array = NNModel.predict(x_test, batch_size=None, verbose=0)
 NNexplainer = shap.DeepExplainer(NNModel,x_test.values)
 
 """ Why is this with index 0? -> for multiple outputs?"""
-shap_vals = NNexplainer.shap_values(x_test.values)[0]
+shap_valsNN = NNexplainer.shap_values(x_test.values)[0]
 
-shap.summary_plot(shap_vals,x_test.values,x_train.columns)
+shap.summary_plot(shap_valsNN,x_test.values,x_train.columns,alpha=0.5)
 shap.force_plot(NNexplainer.expected_value.numpy(),
-				shap_vals,
+				shap_valsNN,
 				x_test.values,
 				x_test.columns,
 				matplotlib = False)
 
-shap.dependence_plot("age",shap_vals,x_test.values,x_test.columns,interaction_index="fare")
-
+shap.dependence_plot("sqrt(fare)",shap_valsNN,x_test.values,x_test.columns,interaction_index="fare",alpha=0.5)
+plt.title("NN Model")
 
 
 
@@ -87,8 +92,8 @@ NNModelLin = NN.kerasModel(x_train, y_train,  [n_inputs, n_labels])
 NNPredLin : np.array = NNModelLin.predict(x_test, batch_size=None, verbose=0)
 NNexplainer = shap.DeepExplainer(NNModelLin,x_test.values)
 """ Why is this with index 0? -> for multiple outputs? """
-shap_vals = NNexplainer.shap_values(x_test.values)[0]
-shap.summary_plot(shap_vals,x_test.values,x_train.columns)
+shap_valsNNLin = NNexplainer.shap_values(x_test.values)[0]
+shap.summary_plot(shap_valsNNLin,x_test.values,x_train.columns,alpha=0.5)
 
 
 
