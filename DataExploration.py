@@ -1,5 +1,6 @@
 import seaborn
 import numpy as np
+import numpy.random as rnd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -27,6 +28,8 @@ data = F.loadPreparedData()
 data = data/data.max(axis=0)
 ## append sqrt(fare) to better the distribution
 data["sqrt(fare)"] = np.sqrt(data["fare"])
+## append 0 data colum
+data["testZero"] = rnd.random(len(data))*0.00001
 ## test train split
 x_train,y_train,x_test,y_test = F.splitData(data)
 ### correlation
@@ -46,15 +49,17 @@ if DO_LIN_FIT:
 	print("-----------------------------------------")
 	### Linear Model
 	linModel, w = F.linRegression(x_train, y_train, x_test, y_test)
+	w.plot.barh()
+	plt.title("Weights")
 	linPred = linModel.predict(x_test)
 	scoreLin = F.score(linPred, y_test)
 	print("Score:" , np.round(scoreLin,3))
 
 	## linear shap
-	shap.initjs()
 	explainer = shap.LinearExplainer(linModel,x_train,feature_dependence="independent")
 	shap_valsLin = explainer.shap_values(x_test)
 	## summary plot
+	plt.figure()
 	shap.summary_plot(shap_valsLin,x_test.values,x_train.columns,alpha=0.5)
 	## one sample person
 	# i=1
@@ -113,10 +118,10 @@ if DO_NNLIN_FIT:
 
 
 
-print("-----------------------------------------")
-print(" ######## ROC ########")
-print("-----------------------------------------")
 if DO_LIN_FIT and DO_NNLIN_FIT and DO_NN_FIT:
+	print("-----------------------------------------")
+	print(" ######## ROC ########")
+	print("-----------------------------------------")
 	from sklearn import metrics
 	M = {}
 	fpr, tpr, thresholds = metrics.roc_curve(y_test, linPred)

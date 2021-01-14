@@ -1,7 +1,7 @@
 
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LinearRegression, Ridge
 from prettytable import PrettyTable
 
 
@@ -66,12 +66,12 @@ def splitData(data):
 	return x_train,y_train,x_test,y_test
 
 def linRegression(x_train, y_train, x_test, y_test):
-	model = LinearRegression(fit_intercept=False)
+	model = Ridge(alpha=0.2, fit_intercept=False)
 	model.fit(x_train, y_train)
 
 	w = model.coef_
 
-	return model, pd.DataFrame(x_train.columns, w)
+	return model, pd.DataFrame(w,x_train.columns)
 
 
 def score(pred, label):
