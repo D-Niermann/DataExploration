@@ -13,11 +13,18 @@ importlib.reload(NN)
 
 """
 TODO: Was genau ist das expected value vom explainer -> mittelwert über die gemachten predictions
-TODO: x test daten in N subsets splitten und shap untersuchen  -  wenn verteilung der feature wenig unterschiedlich, shap identisch? -> ich denke ja
-		wenn aber feature stark anders (zB sortiere feature1 und splitte so dass werte komplett anders in den subsets) dann shap values auch anders! ...??
-		ist das so und will man das so? "Ich denke ja. Die gewichte des modells sind ja immer gleich - heißt in denen sieht man den effekt der veränderten
-		features nicht. Durch shap sieht man welche features mit der verteilung der vorliegenden daten welchen einfluss haben."
-TODO: Kann ein feature welches immer 0 ist hohe gewichte im lin fit kriegen? Ändert die Ridge regression das? 
+TODO: 	- x test daten in N subsets splitten und shap untersuchen  -  wenn verteilung der feature wenig unterschiedlich, shap identisch? 
+			-> ja
+		- wenn aber feature stark anders (zB sortiere feature1 und splitte so dass werte komplett anders in den subsets) dann shap values auch anders?
+			-> Ja! bei 0,1 verteilung zerfällt shap prediction 
+				komplett auf 0, wenn bei verteilung etnweder nur
+				die nullen oder nur die einsen genommen werden
+		- ist das so und will man das so? 
+			"Ich denke ja. Die gewichte des modells sind ja immer gleich - heißt in denen sieht
+			man den effekt der veränderten features nicht. Durch shap sieht man welche features
+			mit der verteilung der vorliegenden daten welchen einfluss haben."
+TODO: Kann ein feature welches immer 0 ist hohe gewichte im lin fit kriegen?  -> Ja! sehr einfach sogar
+		Ändert die Ridge regression das? -> Ja! w[i] ist dann 0
 		Dazu entweder einfach ein feature = 0 setzen und lernen oder ein gelerntes modell nehmen und feature X runter und gewicht zu X sehr hoch setzen - sollte die 
 		performance wenig belasten wenn das feature X ca. 0 ist.
 """
@@ -37,8 +44,8 @@ corr = data.corr()["survived"]
 F.prettyPrint("Correlation", corr.sort_values(key=lambda x: abs(x), ascending=False))
 
 
-DO_LIN_FIT   = 1
-DO_NN_FIT    = 0
+DO_LIN_FIT   = 0
+DO_NN_FIT    = 1
 DO_NNLIN_FIT = 0
 
 
@@ -98,7 +105,7 @@ if DO_NN_FIT:
 					x_test.columns,
 					matplotlib = False)
 
-	shap.dependence_plot("sqrt(fare)",shap_valsNN,x_test.values,x_test.columns,interaction_index="fare",alpha=0.5)
+	shap.dependence_plot("isMale", shap_valsNN, x_test.values, x_test.columns, alpha=0.5)
 	plt.title("NN Model")
 
 
